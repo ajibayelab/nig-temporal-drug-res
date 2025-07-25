@@ -1,9 +1,10 @@
 import logging as log
 import sys
+from typing import Tuple, List
+import os
 
 import allel
-from pandas.core import missing
-from pandas.core.generic import sample
+import pandas
 from xarray import Dataset
 import numpy as np
 
@@ -25,69 +26,110 @@ log.basicConfig(
 logger = log.getLogger(__name__)
 
 
-def retrieve_genotype(snp_dataset: Dataset) -> allel.GenotypeArray:
+def retrieve_genotype(
+    snp_dataset: Dataset,
+) -> Tuple[allel.GenotypeArray, np.ndarray, np.ndarray]:
     import os
 
     logger.info("--- Retrieving genotype information ---")
-    genotype_path = "../data/pf8_nigerian_genotype_filtered.npyoo"
-    o_genotype_path = "../data/pf8_nigerian_genotype.npy"
-    chrom_path = "../data/pf8_nigeria_variant_chrom.npy"
-    snp_data = None
+    genotype_path = "../data/pf8_nigerian_genotype.npy"
+    chrom_path = "../data/pf8_nigeria_variant_chromosome.npy"
+    pos_path = "../data/pf8_nigeria_variant_position.npy"
+
+    biallelic_genotype_path = "../data/pf8_nigerian_biallelic_genotype.npy"
+    biallelic_chrom_path = "../data/pf8_nigeria_biallelic_variant_chromosome.npy"
+    biallelic_pos_path = "../data/pf8_nigeria_biallelic_variant_position.npy"
+
     gt: allel.GenotypeArray
-    if os.path.exists(genotype_path):
-        logger.info("--- Getting genotype from file ---")
+    chrom_data: np.ndarray
+    pos_data: np.ndarray
+
+    # If we have all three biallelic filtered files. Use them
+    # and return
+    if (
+        os.path.exists(biallelic_chrom_path)
+        and os.path.exists(biallelic_genotype_path)
+        and os.path.exists(biallelic_pos_path)
+    ):
+        logger.info("Parsing saved biallelic variants")
+        snp_data = np.load(biallelic_genotype_path)
+        gt = allel.GenotypeArray(snp_data)
+
+        chrom_data = np.load(biallelic_chrom_path, allow_pickle=True)
+        pos_data = np.load(biallelic_pos_path, allow_pickle=True)
+
+        return gt, chrom_data, pos_data
+
+    # if we don't have the genotype detail yet. Fetch it
+    if not os.path.exists(genotype_path):
+        snp_data = snp_dataset.call_genotype
+        gt = allel.GenotypeArray(snp_data)
+        logger.info("--- Saving genotype to file ---")
+        np.save(genotype_path, gt)
+        logger.info("--- Saved genotype to file ---")
+    else:
         snp_data = np.load(genotype_path)
         gt = allel.GenotypeArray(snp_data)
 
-        ac = gt.count_alleles()
-
-        # filter for only biallelic alleles
-        biallelic_filter = ac.is_biallelic()
-        chrom = np.load(chrom_path, allow_pickle=True)
-        print(f"shape before filtering {chrom.shape}")
-        chrom = chrom[biallelic_filter]
-        print(f"shape after filtering {chrom.shape}")
-        print(chrom)
+    # if we don't have the variant chromosome yet. Fetch it
+    if not os.path.exists(chrom_path):
+        chrom_data = snp_dataset["variant_chrom"].values
+        logger.info("--- Saving variant chromosome information to file---")
+        np.save(chrom_path, chrom_data)
+        logger.info("--- Saved  variant chromosome to file ---")
     else:
-        try:
-            logger.info("--- Getting genotype from s3 ---")
-            snp_data = snp_dataset.call_genotype
-            gt = allel.GenotypeArray(snp_data)
-            ac = gt.count_alleles()
+        chrom_data = np.load(chrom_path, allow_pickle=True)
 
-            # filter for only biallelic alleles
-            biallelic_filter = ac.is_biallelic()
-            gt = gt[biallelic_filter]
-            gt = filter_missing_genotype(gt)
+    # if we don't have the variant position yet. Fetch it
+    if not os.path.exists(pos_path):
+        pos_data = snp_dataset["variant_position"].values
+        logger.info("--- Saving variant position information to file ---")
+        np.save(pos_path, pos_data)
+        logger.info("--- Saved variant position to file")
+    else:
+        pos_data = np.load(pos_path, allow_pickle=True)
 
-            if not os.path.exists(chrom_path):
-                chrom = snp_dataset["variant_chrom"]
-                np.save(chrom_path, chrom)
-            chrom = np.load(chrom_path, allow_pickle=True)
-            print(f"shape before filtering {chrom.shape}")
-            chrom = chrom[biallelic_filter]
-            print(f"shape after filtering {chrom.shape}")
-            print(chrom)
+    # filter out non variants
+    ac = gt.count_alleles()
+    variant_filter = ac.is_variant()
+    gt = gt[variant_filter]
+    chrom_data = chrom_data[variant_filter]
+    pos_data = pos_data[variant_filter]
 
-            logger.info("--- Saving genotype to file ---")
-            np.save(genotype_path, gt)
-        except Exception as e:
-            logger.fatal(f"failed to retrieve genotype from s3")
-            exit(1)
+    # filter out non biallelic variants
+    ac = gt.count_alleles()
+    biallelic_filter = ac.is_biallelic()
+    gt = gt[biallelic_filter]
+    chrom_data = chrom_data[biallelic_filter]
+    pos_data = pos_data[biallelic_filter]
 
-    if snp_data is None:
-        logger.fatal(f"genotype content is none")
-        exit(1)
+    # Save biallelic variants
+    biallelic_genotype_path = "../data/pf8_nigerian_biallelic_genotype.npy"
+    biallelic_chrom_path = "../data/pf8_nigeria_biallelic_variant_chromosome.npy"
+    biallelic_pos_path = "../data/pf8_nigeria_biallelic_variant_position.npy"
 
-    logger.info("--- Retrieved genotype information ---")
-    return gt
+    logger.info("--- Saving bialelic genotypes ---")
+    np.save(biallelic_genotype_path, gt)
+    logger.info("--- Saved bialelic genotypes ---")
+
+    logger.info("--- Saving bialelic variant chromosome ---")
+    np.save(biallelic_chrom_path, chrom_data)
+    logger.info("--- Saved bialelic variant chromosome ---")
+
+    logger.info("--- Saving bialelic variant position ---")
+    np.save(biallelic_pos_path, pos_data)
+    logger.info("--- Saved bialelic variant position ---")
+
+    return gt, chrom_data, pos_data
 
 
 def filter_missing_genotype(
     gt: allel.GenotypeArray,
+    meta_data: pandas.DataFrame,
+    sample_id: List[str],
     sample_missing_threshold: float = 0.05,
     variant_missing_threshold: float = 0.05,
-) -> allel.GenotypeArray:
+) -> Tuple[allel.GenotypeArray, pandas.DataFrame, List[str]]:
     """
     Performs iterative filtering of a GenotypeArray based on missing data
     in both samples and variants, saving the intermediate results.
@@ -105,11 +147,24 @@ def filter_missing_genotype(
             proportion of missing data allowed for a sample. The filtering
             stops once the current threshold reaches this value. Defaults to 0.2.
     """
-    ofp = "../data/pf8_nigerian_genotype_filtered"
+    missingness_path = f"../data/missingness/pf8_nigerian_genotype_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
     missing_sample_porportion = 0.9
     missing_variant_porportion = 0.9
 
-    print(gt.shape)
+    # if os.path.exists(missingness_path):
+    if False:
+        # NOTE: continuing for now, so that we can
+        # also filter the sample metadata
+        logger.info("Using cached filtered missingness")
+        print(f"shape of original data {gt.shape}")
+        snp_data = np.load(missingness_path)
+        gt = allel.GenotypeArray(snp_data)
+        print(f"shape of loaded data {gt.shape}")
+        return gt
+
+    print(f"The shape of the metadata is {meta_data.shape}")
+    print(f"The shape of the sample id is {len(sample_id)}")
+
     print(f"overall missingness {gt.count_missing()}")
 
     # iteratively filter out samples and variants with
@@ -129,8 +184,6 @@ def filter_missing_genotype(
             if len(filter) > 0:
                 gt = gt[filter]
                 print(gt.shape)
-                fp = f"{ofp}_sample_filter_{missing_sample_porportion}.npy"
-                np.save(fp, gt)
             missing_sample_porportion = round(missing_sample_porportion - 0.1, 1)
 
         if missing_variant_porportion > variant_missing_threshold:
@@ -140,51 +193,34 @@ def filter_missing_genotype(
             ) <= missing_variant_porportion
             if len(filter) > 0:
                 gt = gt[:, filter, :]
-                print(gt.shape)
-                fp = f"{ofp}_variant_filter_{missing_sample_porportion}.npy"
-                np.save(fp, gt)
+                sample_id = sample_id[filter]
+                meta_data = meta_data[filter]
+
             missing_variant_porportion = round(missing_variant_porportion - 0.1, 1)
 
     print(f"overall missingness {gt.count_missing()}")
-    print(gt.shape)
-    return gt
-
-
-def filter_mac(gt: allel.GenotypeArray, mac_threshold=1) -> allel.GenotypeArray:
-    logger.info("--- Filtering by Minor Allele Count ---")
-    ac = gt.count_alleles()
-    # filter out zero counts
-    ac = np.array([row[row != 0] for row in ac])
-    mac = ac.min(axis=1)
-    mac_filter = mac > mac_threshold
-    print(np.sum(mac_filter))
-    return gt[mac_filter]
-
-
-def filter_maf(gt: allel.GenotypeArray, maf_threshold=0.01) -> allel.GenotypeArray:
-    logger.info("--- Filtering by Minor Allele Frequency ---")
-    ac = gt.count_alleles()
-    af = ac.to_frequencies()
-    # filter out zero frequencies
-    af = np.array([row[row != 0] for row in af])
-    maf = af.min(axis=1)
-    maf_filter = maf >= maf_threshold
-    print(np.sum(maf_filter))
-    return gt[maf_filter]
+    np.save(missingness_path, gt)
+    print(f"The filtered shape of the metadata is {meta_data.shape}")
+    print(f"The filtered shape of the sample id is {len(sample_id)}")
+    print(f"The filtered genotype shape is {gt.shape}")
+    return gt, meta_data, sample_id
 
 
 def main():
     logger.info("--- Starting temporal genomics pipeline ---")
-
     snp_dataset, pf8_metadata, sample_ids = retrieve_data.main()
-    chrom = snp_dataset["variant_chrom"]
-    print(chrom.shape)
-    np.save("../data/pf8_nigeria_variant_genotype.npy", chrom)
-    genotype_data = retrieve_genotype(snp_dataset)
-    genotype_data = filter_maf(genotype_data)
-    genotype_data = filter_mac(genotype_data, mac_threshold=5)
+
+    genotype_data, variant_chromosome, variant_position = retrieve_genotype(
+        snp_dataset,
+    )
+    print("chromosome shape ", variant_chromosome.shape)
+    print("genotype shape ", genotype_data.shape)
+    print("position shape", variant_position.shape)
+    genotype_data, pf8_metadata, sample_ids = filter_missing_genotype(
+        genotype_data, pf8_metadata, sample_ids
+    )
     genotype_data = pcoa.main(pf8_metadata, genotype_data, sample_ids)
-    ld.prune_ld(genotype_data)
+    # ld.prune_ld(genotype_data)
 
     logger.info("--- Temporal genomics pipeline completed ---")
 

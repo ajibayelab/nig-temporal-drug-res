@@ -56,7 +56,7 @@ def main(
     logger.info(f"Merged data shape: {metadata.shape}")
     logger.info(f"Samples in final analysis: {len(metadata)}")
 
-    # plot_pca(metadata, explained_variance_ratio)
+    plot_pca(metadata, explained_variance_ratio)
 
     # run Fst between the two clusters of interest
     cluster_threshold: Dict[str, List] = {
