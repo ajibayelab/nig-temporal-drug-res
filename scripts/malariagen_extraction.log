@@ -5190,3 +5190,256 @@ task: <Task pending name='Task-4' coro=<_runner() running at /Users/konig/minico
 2025-07-26 11:17:12,910 - INFO - Genotype array shape: (20995, 394, 2)
 2025-07-26 11:17:12,995 - INFO - The shape of n_alt is (20995, 394)
 2025-07-26 11:17:13,107 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 11:34:02,062 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 11:34:04,064 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 11:34:27,086 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 11:34:28,541 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 11:44:10,053 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 11:44:12,110 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 11:44:22,094 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 11:44:22,099 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 11:44:22,099 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 11:45:21,199 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 11:45:21,209 - INFO - Generate Xarray Dataset
+2025-07-26 11:45:24,664 - INFO - Xarray Dataset generated
+2025-07-26 11:45:24,667 - INFO - --- Retrieving genotype information ---
+2025-07-26 11:45:24,667 - INFO - Parsing saved biallelic variants
+2025-07-26 11:45:25,715 - INFO - Using cached filtered missingness
+2025-07-26 11:45:30,998 - INFO - Computing pcoa
+2025-07-26 11:45:31,975 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 11:45:32,062 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 11:45:32,182 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 12:08:15,993 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:08:18,138 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:08:36,083 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:08:36,088 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:08:36,089 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:08:47,679 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 12:08:47,689 - INFO - Generate Xarray Dataset
+2025-07-26 12:08:50,072 - INFO - Xarray Dataset generated
+2025-07-26 12:08:50,074 - INFO - --- Retrieving genotype information ---
+2025-07-26 12:08:50,074 - INFO - Parsing saved biallelic variants
+2025-07-26 12:08:50,970 - INFO - Using cached filtered missingness
+2025-07-26 12:08:56,352 - INFO - Computing pcoa
+2025-07-26 12:08:57,305 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 12:08:57,390 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 12:08:57,505 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 12:10:33,738 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:10:35,515 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:10:44,221 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:10:44,224 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:10:44,224 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:11:52,319 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 12:11:52,327 - INFO - Generate Xarray Dataset
+2025-07-26 12:11:54,873 - INFO - Xarray Dataset generated
+2025-07-26 12:11:54,875 - INFO - --- Retrieving genotype information ---
+2025-07-26 12:11:54,875 - INFO - Parsing saved biallelic variants
+2025-07-26 12:11:55,901 - INFO - Using cached filtered missingness
+2025-07-26 12:12:01,294 - INFO - Computing pcoa
+2025-07-26 12:12:02,298 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 12:12:02,384 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 12:12:02,498 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798941]
+2025-07-26 12:22:34,838 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:22:36,862 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:22:43,751 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:22:43,756 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:22:43,757 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:30:52,280 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:30:54,032 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:31:44,271 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:31:44,273 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:31:44,273 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:31:48,963 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 12:31:48,973 - INFO - Generate Xarray Dataset
+2025-07-26 12:31:50,147 - INFO - Xarray Dataset generated
+2025-07-26 12:31:50,149 - INFO - --- Retrieving genotype information ---
+2025-07-26 12:31:50,149 - INFO - Parsing saved biallelic variants
+2025-07-26 12:42:42,259 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:42:44,283 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:43:02,315 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:43:02,320 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:43:02,320 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:43:19,901 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 12:43:19,912 - INFO - Generate Xarray Dataset
+2025-07-26 12:43:21,358 - INFO - Xarray Dataset generated
+2025-07-26 12:43:21,360 - INFO - --- Retrieving genotype information ---
+2025-07-26 12:43:21,361 - INFO - Parsing saved biallelic variants
+2025-07-26 12:46:18,591 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:46:20,479 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:46:37,951 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:46:37,953 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:46:37,953 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:46:42,091 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 12:46:42,098 - INFO - Generate Xarray Dataset
+2025-07-26 12:46:45,167 - INFO - Xarray Dataset generated
+2025-07-26 12:46:45,169 - INFO - --- Retrieving genotype information ---
+2025-07-26 12:46:45,169 - INFO - Parsing saved biallelic variants
+2025-07-26 12:51:23,897 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 12:51:25,918 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 12:51:37,931 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 12:51:37,936 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 12:51:37,937 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 12:52:02,781 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 12:52:02,791 - INFO - Generate Xarray Dataset
+2025-07-26 12:52:07,750 - INFO - Xarray Dataset generated
+2025-07-26 12:52:07,752 - INFO - --- Retrieving genotype information ---
+2025-07-26 12:52:07,752 - INFO - Parsing saved biallelic variants
+2025-07-26 12:56:15,015 - INFO - Computing pcoa
+2025-07-26 12:56:15,959 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 12:56:16,045 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 12:56:16,189 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 12:56:16,190 - INFO - Merging PCA results with metadata
+2025-07-26 12:56:16,192 - INFO - Merged data shape: (394, 29)
+2025-07-26 12:56:16,192 - INFO - Samples in final analysis: 394
+2025-07-26 13:03:34,294 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 13:03:36,339 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 13:03:46,665 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 13:03:46,671 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 13:03:46,671 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 13:03:52,117 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 13:03:52,129 - INFO - Generate Xarray Dataset
+2025-07-26 13:03:53,978 - INFO - Xarray Dataset generated
+2025-07-26 13:03:53,980 - INFO - --- Retrieving genotype information ---
+2025-07-26 13:03:53,980 - INFO - Parsing saved biallelic variants
+2025-07-26 13:03:54,949 - INFO - Using cached filtered missingness
+2025-07-26 13:04:25,402 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 13:04:27,219 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 13:04:47,813 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 13:04:47,818 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 13:04:47,818 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 13:07:58,187 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 13:07:58,198 - INFO - Generate Xarray Dataset
+2025-07-26 13:08:00,191 - INFO - Xarray Dataset generated
+2025-07-26 13:08:00,193 - INFO - --- Retrieving genotype information ---
+2025-07-26 13:08:00,193 - INFO - Parsing saved biallelic variants
+2025-07-26 13:08:01,397 - INFO - Using cached filtered missingness
+2025-07-26 13:08:06,865 - INFO - Computing pcoa
+2025-07-26 13:08:07,779 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 13:08:07,865 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 13:08:07,977 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798939]
+2025-07-26 13:08:07,978 - INFO - Merging PCA results with metadata
+2025-07-26 13:42:17,981 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 13:42:20,020 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 13:42:25,589 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 13:42:25,594 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 13:42:25,594 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 13:42:30,409 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 13:42:30,420 - INFO - Generate Xarray Dataset
+2025-07-26 13:42:31,992 - INFO - Xarray Dataset generated
+2025-07-26 13:42:31,994 - INFO - --- Retrieving genotype information ---
+2025-07-26 13:42:31,994 - INFO - Parsing saved biallelic variants
+2025-07-26 13:46:49,700 - INFO - Computing pcoa
+2025-07-26 13:46:50,636 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 13:46:50,721 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 13:46:50,859 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798941]
+2025-07-26 13:46:50,860 - INFO - Merging PCA results with metadata
+2025-07-26 13:46:50,862 - INFO - Merged data shape: (394, 29)
+2025-07-26 13:46:50,862 - INFO - Samples in final analysis: 394
+2025-07-26 13:47:55,494 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 13:47:57,228 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 13:48:12,010 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 13:48:12,012 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 13:48:12,012 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 13:48:18,874 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 13:48:18,881 - INFO - Generate Xarray Dataset
+2025-07-26 13:48:22,611 - INFO - Xarray Dataset generated
+2025-07-26 13:48:22,614 - INFO - --- Retrieving genotype information ---
+2025-07-26 13:48:22,614 - INFO - Parsing saved biallelic variants
+2025-07-26 13:48:23,667 - INFO - Using cached filtered missingness
+2025-07-26 13:48:29,172 - INFO - Computing pcoa
+2025-07-26 13:48:30,099 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 13:48:30,185 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 13:48:30,294 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798941]
+2025-07-26 13:48:30,295 - INFO - Merging PCA results with metadata
+2025-07-26 13:48:30,296 - INFO - Merged data shape: (394, 29)
+2025-07-26 13:48:30,296 - INFO - Samples in final analysis: 394
+2025-07-26 13:50:02,244 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 13:50:03,988 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 13:54:18,063 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 13:54:18,066 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 13:54:18,067 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 13:54:20,602 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 13:54:20,611 - INFO - Generate Xarray Dataset
+2025-07-26 13:54:22,813 - INFO - Xarray Dataset generated
+2025-07-26 13:54:22,815 - INFO - --- Retrieving genotype information ---
+2025-07-26 13:54:22,815 - INFO - Parsing saved biallelic variants
+2025-07-26 13:54:23,780 - INFO - Using cached filtered missingness
+2025-07-26 13:54:28,990 - INFO - Computing pcoa
+2025-07-26 13:54:29,943 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 13:54:30,029 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 13:54:30,142 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 13:54:30,143 - INFO - Merging PCA results with metadata
+2025-07-26 13:54:30,144 - INFO - Merged data shape: (394, 29)
+2025-07-26 13:54:30,144 - INFO - Samples in final analysis: 394
+2025-07-26 17:23:31,295 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 17:23:33,319 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 17:31:21,484 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 17:31:21,490 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 17:31:21,490 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 17:31:25,885 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 17:31:25,895 - INFO - Generate Xarray Dataset
+2025-07-26 17:31:32,424 - INFO - Xarray Dataset generated
+2025-07-26 17:31:32,427 - INFO - --- Retrieving genotype information ---
+2025-07-26 17:31:32,428 - INFO - Parsing saved biallelic variants
+2025-07-26 17:31:33,428 - INFO - Using cached filtered missingness
+2025-07-26 17:31:38,640 - INFO - Computing pcoa
+2025-07-26 17:31:39,587 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 17:31:39,673 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 17:31:39,788 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 17:31:39,789 - INFO - Merging PCA results with metadata
+2025-07-26 17:31:39,790 - INFO - Merged data shape: (394, 29)
+2025-07-26 17:31:39,790 - INFO - Samples in final analysis: 394
+2025-07-26 18:46:39,613 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 18:46:41,786 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 18:46:59,466 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 18:46:59,470 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 18:46:59,470 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 18:47:08,415 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 18:47:08,426 - INFO - Generate Xarray Dataset
+2025-07-26 18:47:14,061 - INFO - Xarray Dataset generated
+2025-07-26 18:47:14,063 - INFO - --- Retrieving genotype information ---
+2025-07-26 18:47:14,063 - INFO - Parsing saved biallelic variants
+2025-07-26 18:47:14,999 - INFO - Using cached filtered missingness
+2025-07-26 18:47:20,451 - INFO - Computing pcoa
+2025-07-26 18:47:21,500 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 18:47:21,587 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 18:47:21,720 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 18:47:21,721 - INFO - Merging PCA results with metadata
+2025-07-26 18:47:21,723 - INFO - Merged data shape: (394, 29)
+2025-07-26 18:47:21,723 - INFO - Samples in final analysis: 394
+2025-07-26 18:49:19,062 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 18:49:20,852 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 18:49:51,261 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 18:49:51,266 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 18:49:51,266 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 18:54:39,224 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 18:54:39,236 - INFO - Generate Xarray Dataset
+2025-07-26 18:54:40,686 - INFO - Xarray Dataset generated
+2025-07-26 18:54:40,690 - INFO - --- Retrieving genotype information ---
+2025-07-26 18:54:40,690 - INFO - Parsing saved biallelic variants
+2025-07-26 18:54:41,685 - INFO - Using cached filtered missingness
+2025-07-26 18:54:47,030 - INFO - Computing pcoa
+2025-07-26 18:54:48,103 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 18:54:48,189 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 18:54:48,303 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.0179894 ]
+2025-07-26 18:54:48,304 - INFO - Merging PCA results with metadata
+2025-07-26 18:54:48,305 - INFO - Merged data shape: (394, 29)
+2025-07-26 18:54:48,305 - INFO - Samples in final analysis: 394
+2025-07-26 18:56:10,383 - INFO - --- Starting temporal genomics pipeline ---
+2025-07-26 18:56:12,393 - INFO - Connecting with malariagen to retrieve plasmodium falciparum 8 data
+2025-07-26 18:56:44,616 - INFO - Filtering plasmodium falciparum data by country and QC status
+2025-07-26 18:56:44,619 - INFO - unique countries in sample metadata after filtering -> Nigeria
+2025-07-26 18:56:44,619 - INFO - Retrieving plasmodium falciparum drug resistance data
+2025-07-26 18:56:59,216 - INFO - Merging sample metadata with drug resistance data
+2025-07-26 18:56:59,224 - INFO - Generate Xarray Dataset
+2025-07-26 18:57:02,780 - INFO - Xarray Dataset generated
+2025-07-26 18:57:02,782 - INFO - --- Retrieving genotype information ---
+2025-07-26 18:57:02,782 - INFO - Parsing saved biallelic variants
+2025-07-26 18:57:03,822 - INFO - Using cached filtered missingness
+2025-07-26 18:57:09,030 - INFO - Computing pcoa
+2025-07-26 18:57:10,048 - INFO - Genotype array shape: (20995, 394, 2)
+2025-07-26 18:57:10,134 - INFO - The shape of n_alt is (20995, 394)
+2025-07-26 18:57:10,241 - INFO - Explained variance ratio of the first 2 PCs [0.02743357 0.01798942]
+2025-07-26 18:57:10,244 - INFO - Merging PCA results with metadata
+2025-07-26 18:57:10,247 - INFO - Merged data shape: (394, 29)
+2025-07-26 18:57:10,247 - INFO - Samples in final analysis: 394

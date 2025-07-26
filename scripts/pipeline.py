@@ -1,4 +1,5 @@
 import logging as log
+from re import T
 import sys
 import os
 from typing import Tuple, List
@@ -10,8 +11,9 @@ import numpy as np
 
 import retrieve_data
 
-import population_structure.pcoa as pcoa
+import population_structure.pca as pca
 import population_structure.linkage_disequilibrum as ld
+import population_structure.neighborhood_joining_tree as njt
 
 # Configure logging
 log.basicConfig(
@@ -151,6 +153,8 @@ def filter_missing_genotype(
     missingness_path = f"../data/missingness/pf8_nigerian_genotype_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
     chromosome_path = f"../data/missingness/pf8_nigerian_chromosome_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
     position_path = f"../data/missingness/pf8_nigerian_position_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
+    metadata_path = f"../data/missingness/pf8_metadata_filter_{sample_missing_threshold}_{variant_missing_threshold}.csv"
+    sampleid_path = f"../data/missingness/pf8_sampleid_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
     missing_sample_porportion = 0.9
     missing_variant_porportion = 0.9
 
@@ -158,6 +162,7 @@ def filter_missing_genotype(
         os.path.exists(missingness_path)
         and os.path.exists(chromosome_path)
         and os.path.exists(position_path)
+        and os.path.exists(metadata_path)
     ):
         # NOTE: continuing for now, so that we can
         # also filter the sample metadata
@@ -168,9 +173,11 @@ def filter_missing_genotype(
         print(f"shape of loaded data {gt.shape}")
         c = np.load(chromosome_path, allow_pickle=True)
         p = np.load(position_path, allow_pickle=True)
+        m = pandas.read_csv(metadata_path)
+        s = np.load(sampleid_path, allow_pickle=True)
         print(f"shape of loaded chromosome {c.shape}")
         print(f"shape of loaded position {p.shape}")
-        return gt, meta_data, sample_id, c, p
+        return gt, m, s, c, p
 
     print(f"The shape of the metadata is {meta_data.shape}")
     print(f"The shape of the sample id is {len(sample_id)}")
@@ -205,6 +212,7 @@ def filter_missing_genotype(
             if len(filter) > 0:
                 gt = gt[:, filter, :]
                 sample_id = sample_id[filter]
+                meta_data = meta_data.loc[filter, :]
 
             missing_variant_porportion = round(missing_variant_porportion - 0.1, 1)
 
@@ -212,6 +220,9 @@ def filter_missing_genotype(
     np.save(missingness_path, gt)
     np.save(chromosome_path, variant_chromosome)
     np.save(position_path, variant_position)
+    np.save(sampleid_path, sample_id)
+
+    meta_data.to_csv(metadata_path, index=False)
 
     print(f"The filtered shape of the metadata is {meta_data.shape}")
     print(f"The filtered shape of the sample id is {len(sample_id)}")
@@ -283,7 +294,8 @@ def main():
     genotype_data, variant_chromosome, variant_position = ld.prune_ld(
         genotype_data, variant_position, variant_chromosome
     )
-    genotype_data = pcoa.main(pf8_metadata, genotype_data, sample_ids)
+    print(f"genotype data before pca is {genotype_data.shape}")
+    genotype_data = pca.main(pf8_metadata, genotype_data, sample_ids)
 
     logger.info("--- Temporal genomics pipeline completed ---")
 

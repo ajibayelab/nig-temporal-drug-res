@@ -134,20 +134,19 @@ def plot_pca(metadata: pd.DataFrame, explained_variance_ratio):
     plt.style.use("seaborn-v0_8-whitegrid")
     fig, ax = plt.subplots(figsize=(10, 8))
 
-    # Use a colormap to represent the time points
-    # `c` parameter is used for the color, and `cmap` for the color map
     scatter = ax.scatter(
         metadata["PC1"],
         metadata["PC2"],
+        # c=metadata["Year", "Sulfadoxine", "Mefloquine", "Artemisinin"],
         c=metadata["Year"],
         cmap="viridis",  # 'viridis' is a good sequential colormap
         alpha=0.8,
-        s=70,  # size of the points
+        s=70,
     )
 
     # Add a color bar to show the mapping from color to time
     cbar = fig.colorbar(scatter, ax=ax, label="Time Point (Year)")
-    cbar.set_ticks(np.unique(metadata["Year"]))
+    cbar.set_ticks(np.unique(metadata["Sulfadoxine"]))
 
     # Add labels with explained variance
     ax.set_xlabel(f"PC1 ({pc1_var:.2f}% variance explained)")
