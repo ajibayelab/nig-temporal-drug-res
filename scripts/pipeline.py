@@ -1,7 +1,7 @@
 import logging as log
 import sys
-from typing import Tuple, List
 import os
+from typing import Tuple, List
 
 import allel
 import pandas
@@ -9,7 +9,6 @@ from xarray import Dataset
 import numpy as np
 
 import retrieve_data
-import population_structure.neighborhood_joining_tree as njt
 
 import population_structure.pcoa as pcoa
 import population_structure.linkage_disequilibrum as ld
@@ -125,11 +124,13 @@ def retrieve_genotype(
 
 def filter_missing_genotype(
     gt: allel.GenotypeArray,
+    variant_chromosome: np.ndarray,
+    variant_position: np.ndarray,
     meta_data: pandas.DataFrame,
     sample_id: List[str],
     sample_missing_threshold: float = 0.05,
     variant_missing_threshold: float = 0.05,
-) -> Tuple[allel.GenotypeArray, pandas.DataFrame, List[str]]:
+) -> Tuple[allel.GenotypeArray, pandas.DataFrame, List[str], np.ndarray, np.ndarray]:
     """
     Performs iterative filtering of a GenotypeArray based on missing data
     in both samples and variants, saving the intermediate results.
@@ -148,11 +149,16 @@ def filter_missing_genotype(
             stops once the current threshold reaches this value. Defaults to 0.2.
     """
     missingness_path = f"../data/missingness/pf8_nigerian_genotype_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
+    chromosome_path = f"../data/missingness/pf8_nigerian_chromosome_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
+    position_path = f"../data/missingness/pf8_nigerian_position_missingness_filter_{sample_missing_threshold}_{variant_missing_threshold}.npy"
     missing_sample_porportion = 0.9
     missing_variant_porportion = 0.9
 
-    # if os.path.exists(missingness_path):
-    if False:
+    if (
+        os.path.exists(missingness_path)
+        and os.path.exists(chromosome_path)
+        and os.path.exists(position_path)
+    ):
         # NOTE: continuing for now, so that we can
         # also filter the sample metadata
         logger.info("Using cached filtered missingness")
@@ -160,7 +166,11 @@ def filter_missing_genotype(
         snp_data = np.load(missingness_path)
         gt = allel.GenotypeArray(snp_data)
         print(f"shape of loaded data {gt.shape}")
-        return gt
+        c = np.load(chromosome_path, allow_pickle=True)
+        p = np.load(position_path, allow_pickle=True)
+        print(f"shape of loaded chromosome {c.shape}")
+        print(f"shape of loaded position {p.shape}")
+        return gt, meta_data, sample_id, c, p
 
     print(f"The shape of the metadata is {meta_data.shape}")
     print(f"The shape of the sample id is {len(sample_id)}")
@@ -183,7 +193,8 @@ def filter_missing_genotype(
             ) <= missing_sample_porportion
             if len(filter) > 0:
                 gt = gt[filter]
-                print(gt.shape)
+                variant_chromosome = variant_chromosome[filter]
+                variant_position = variant_position[filter]
             missing_sample_porportion = round(missing_sample_porportion - 0.1, 1)
 
         if missing_variant_porportion > variant_missing_threshold:
@@ -194,16 +205,54 @@ def filter_missing_genotype(
             if len(filter) > 0:
                 gt = gt[:, filter, :]
                 sample_id = sample_id[filter]
-                meta_data = meta_data[filter]
 
             missing_variant_porportion = round(missing_variant_porportion - 0.1, 1)
 
     print(f"overall missingness {gt.count_missing()}")
     np.save(missingness_path, gt)
+    np.save(chromosome_path, variant_chromosome)
+    np.save(position_path, variant_position)
+
     print(f"The filtered shape of the metadata is {meta_data.shape}")
     print(f"The filtered shape of the sample id is {len(sample_id)}")
     print(f"The filtered genotype shape is {gt.shape}")
-    return gt, meta_data, sample_id
+    print(f"The filtered chromosome shape is {variant_chromosome.shape}")
+    print(f"The filtered position shape is {variant_position.shape}")
+    return gt, meta_data, sample_id, variant_chromosome, variant_position
+
+
+def filter_mac(
+    genotype_data: allel.GenotypeArray,
+    variant_chromosome: np.ndarray,
+    variant_position: np.ndarray,
+    mac=5,
+) -> Tuple[allel.GenotypeArray, np.ndarray, np.ndarray]:
+
+    ac = genotype_data.count_alleles()
+    mac_filter = ac[:, 1:] >= mac
+    mac_filter = [any(filter) for filter in mac_filter]
+    print(f"Total variant passing check is {sum(mac_filter)}")
+    genotype_data = genotype_data[mac_filter]
+    variant_chromosome = variant_chromosome[mac_filter]
+    variant_position = variant_position[mac_filter]
+    return genotype_data, variant_chromosome, variant_position
+
+
+def filter_maf(
+    genotype_data: allel.GenotypeArray,
+    variant_chromosome: np.ndarray,
+    variant_position: np.ndarray,
+    maf=0.05,
+) -> Tuple[allel.GenotypeArray, np.ndarray, np.ndarray]:
+    ac = genotype_data.count_alleles()
+    af = ac.to_frequencies()
+    maf_filter = af[:, 1:] >= maf
+    maf_filter = [any(filter) for filter in maf_filter]
+    print(f"Total variant passing check is {sum(maf_filter)}")
+    genotype_data = genotype_data[maf_filter]
+    variant_chromosome = variant_chromosome[maf_filter]
+    variant_position = variant_position[maf_filter]
+    return genotype_data, variant_chromosome, variant_position
 
 
 def main():
@@ -216,11 +265,25 @@ def main():
     print("chromosome shape ", variant_chromosome.shape)
     print("genotype shape ", genotype_data.shape)
     print("position shape", variant_position.shape)
-    genotype_data, pf8_metadata, sample_ids = filter_missing_genotype(
-        genotype_data, pf8_metadata, sample_ids
+    genotype_data, pf8_metadata, sample_ids, variant_chromosome, variant_position = (
+        filter_missing_genotype(
+            genotype_data,
+            variant_chromosome,
+            variant_position,
+            pf8_metadata,
+            sample_ids,
+        )
+    )
+    genotype_data, variant_chromosome, variant_position = filter_mac(
+        genotype_data, variant_chromosome, variant_position
+    )
+    genotype_data, variant_chromosome, variant_position = filter_maf(
+        genotype_data, variant_chromosome, variant_position
+    )
+    genotype_data, variant_chromosome, variant_position = ld.prune_ld(
+        genotype_data, variant_position, variant_chromosome
     )
     genotype_data = pcoa.main(pf8_metadata, genotype_data, sample_ids)
-    # ld.prune_ld(genotype_data)
 
     logger.info("--- Temporal genomics pipeline completed ---")
 

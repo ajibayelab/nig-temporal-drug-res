@@ -19,7 +19,7 @@ def main(
     metadata: pd.DataFrame,
     genotype_data: GenotypeArray,
     sample_ids: List[str],
-    n_components=3,
+    n_components=2,
 ) -> GenotypeArray:
     logger.info("Computing pcoa")
     import numpy as np
