@@ -5,6 +5,7 @@ import os
 from typing import Tuple, List
 
 import allel
+from numpy.random import sample
 import pandas
 from xarray import Dataset
 import numpy as np
@@ -13,7 +14,9 @@ import retrieve_data
 
 import population_structure.pca as pca
 import population_structure.linkage_disequilibrum as ld
-import population_structure.neighborhood_joining_tree as njt
+import drug_resistance.resistance_analysis as dra
+import selection_analysis.analysis as sa
+import population_structure.ne_estimation as nea
 
 # Configure logging
 log.basicConfig(
@@ -291,9 +294,14 @@ def main():
     genotype_data, variant_chromosome, variant_position = filter_maf(
         genotype_data, variant_chromosome, variant_position
     )
+    dra.main(
+        genotype_data, variant_chromosome, variant_position, pf8_metadata, sample_ids
+    )
     genotype_data, variant_chromosome, variant_position = ld.prune_ld(
         genotype_data, variant_position, variant_chromosome
     )
+    sa.main(genotype_data, variant_chromosome, variant_position)
+    nea.main(genotype_data, variant_position, pf8_metadata, sample_ids)
     print(f"genotype data before pca is {genotype_data.shape}")
     genotype_data = pca.main(pf8_metadata, genotype_data, sample_ids)
 
