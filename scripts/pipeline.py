@@ -256,7 +256,7 @@ def filter_maf(
     genotype_data: allel.GenotypeArray,
     variant_chromosome: np.ndarray,
     variant_position: np.ndarray,
-    maf=0.05,
+    maf=0.01,
 ) -> Tuple[allel.GenotypeArray, np.ndarray, np.ndarray]:
     ac = genotype_data.count_alleles()
     af = ac.to_frequencies()
@@ -294,18 +294,18 @@ def main():
     genotype_data, variant_chromosome, variant_position = filter_maf(
         genotype_data, variant_chromosome, variant_position
     )
-    dra.main(
-        genotype_data, variant_chromosome, variant_position, pf8_metadata, sample_ids
-    )
+    # dra.main(
+    #    genotype_data, variant_chromosome, variant_position, pf8_metadata, sample_ids
+    # )
+    # sa.main(genotype_data, variant_chromosome, variant_position)
+    # nea.main(genotype_data, variant_position, pf8_metadata, sample_ids)
+
     genotype_data, variant_chromosome, variant_position = ld.prune_ld(
         genotype_data, variant_position, variant_chromosome
     )
-    sa.main(genotype_data, variant_chromosome, variant_position)
-    nea.main(genotype_data, variant_position, pf8_metadata, sample_ids)
-    print(f"genotype data before pca is {genotype_data.shape}")
     genotype_data = pca.main(pf8_metadata, genotype_data, sample_ids)
 
-    logger.info("--- Temporal genomics pipeline completed ---")
+    logger.info("----- Temporal genomics pipeline completed -----")
 
 
 if __name__ == "__main__":

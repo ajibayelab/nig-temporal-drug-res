@@ -1,8 +1,14 @@
 import logging as log
 import sys
-from allel import GenotypeArray
+from allel import GenotypeArray, pca
+from allel.model.ndarray import genotype_array_count_alleles_subpop
 import pandas as pd
-from typing import Dict, List
+import numpy as np
+from typing import Dict, List, Tuple
+
+from pandas.core.frame import Axes
+from xarray import DataTree
+from zarr import meta
 
 log.basicConfig(
     level=log.INFO,
@@ -15,119 +21,89 @@ log.basicConfig(
 logger = log.getLogger(__name__)
 
 
-def main(
+# BUG:getting ValueError: arrayy must not contain infs or NaNs
+# falling back to manual PCA computation
+def calculate_pca(
     metadata: pd.DataFrame,
     genotype_data: GenotypeArray,
     sample_ids: List[str],
     n_components=2,
-) -> GenotypeArray:
-    logger.info("Computing pcoa")
-    import numpy as np
-    from sklearn.decomposition import PCA
-    from sklearn.impute import SimpleImputer
-    from .fst import main as fst_main
+):
+    logger.info("----- Starting PCA computation -----")
 
-    logger.info(f"Genotype array shape: {genotype_data.shape}")
-    # NOTE: at this point we have filtered our genotype to limit
-    # it to biallelic variants with statistically significant
-    # alternate alleles
+    ac = genotype_data.count_alleles()
+    mask = ac.allelism() > 1
+    print(f"number of samples {np.sum(mask)}")
+    genotype_data = genotype_data[mask]
     gn = genotype_data.to_n_alt()
-    logger.info(f"The shape of n_alt is {gn.shape}")
 
-    # samples are now rows and variants are column
-    gn_t = gn.T
-    # run PCA
-    pca = PCA(n_components=n_components)
-    coords = pca.fit_transform(gn_t)
-    explained_variance_ratio = pca.explained_variance_ratio_
+    if np.any(np.isinf(gn)) or np.any(np.isnan(gn)):
+        logger.error(
+            "The genotype array still contains Inf or NaN values after filtering."
+        )
+        gn = np.nan_to_num(gn)
+        logger.warning(
+            "Replaced remaining Inf/NaN values with 0. Proceeding with caution."
+        )
 
-    logger.info(
-        f"Explained variance ratio of the first {n_components} PCs {explained_variance_ratio}"
-    )
+    coordinates, model = pca(gn)
 
-    # Merge PCA coordinates with metadata
-    pc_columns = [f"PC{i+1}" for i in range(n_components)]
-    pca_df = pd.DataFrame(coords, columns=pc_columns)
-    pca_df["Sample"] = sample_ids
+    logger.info("----- PCA computed -----")
 
-    logger.info("Merging PCA results with metadata")
-    metadata = metadata.merge(pca_df, on="Sample", how="inner")
+    logger.info(f"explaind model variance {model.explained_variance_}")
+    logger.info(f"explaind model variance ration {model.explained_variance_ratio_}")
+    logger.info(f"coordinates are {coordinates}")
 
-    logger.info(f"Merged data shape: {metadata.shape}")
-    logger.info(f"Samples in final analysis: {len(metadata)}")
 
-    plot_pca(metadata, explained_variance_ratio)
+def assign_clusters_by_cutoff(coordinates: np.ndarray) -> np.ndarray:
+    """
+    Assigns cluster IDs to samples based on simple PC coordinate cutoffs.
 
-    # run Fst between the two clusters of interest
-    cluster_threshold: Dict[str, List] = {
-        "Cluster1": [[50, 150], [-50, 50]],  # bottom righ cluster
-        "Cluster2": [[-50, 25], [100, 250]],  # top left cluster
+    Args:
+        coordinates (np.ndarray): A 2D array of PCA coordinates, where
+                                  the first column is PC1 and the second is PC2.
+
+    Returns:
+        np.ndarray: A 1D array of cluster IDs for each sample.
+    """
+
+    cluster_ids = np.ones(coordinates.shape[0], dtype=int)
+
+    # NOTE: cutoffs array is in order [left PC1, right PC1, bottom PC2, top PC2]
+    cutofs: Dict[int, List[int]] = {
+        1: [-20, 20, -20, 20],  # main population
+        2: [-20, 0, -30, -20],  # bottom left outlier
+        3: [-20, 0, 80, 120],  # top left outlier
+        4: [80, 120, -20, 20],  # right outlier
     }
-    # Define the conditions as boolean Series
-    # Note the correct logical AND operator `&` for Pandas Series
-    conditions = [
-        # Condition for Cluster 1
-        (
-            (
-                (metadata["PC1"] >= cluster_threshold["Cluster1"][0][0])
-                & (metadata["PC1"] <= cluster_threshold["Cluster1"][0][1])
-            )
-            & (
-                (metadata["PC2"] >= cluster_threshold["Cluster1"][1][0])
-                & (metadata["PC2"] <= cluster_threshold["Cluster1"][1][1])
-            )
-        ),
-        # Condition for Cluster 2
-        (
-            (
-                (metadata["PC1"] >= cluster_threshold["Cluster2"][0][0])
-                & (metadata["PC1"] <= cluster_threshold["Cluster2"][0][1])
-            )
-            & (
-                (metadata["PC2"] >= cluster_threshold["Cluster2"][1][0])
-                & (metadata["PC2"] <= cluster_threshold["Cluster2"][1][1])
-            )
-        ),
-    ]
 
-    # Define the corresponding cluster values
-    choices = [
-        "Cluster1",
-        "Cluster2",
-    ]
+    pc1 = coordinates[:, 0]
+    pc2 = coordinates[:, 1]
+    for id, values in cutofs.items():
+        cluster_mask = (
+            (pc1 >= values[0])
+            & (pc1 <= values[1])
+            & (pc2 >= values[2])
+            & (pc2 <= values[3])
+        )
+        cluster_ids[cluster_mask] = id
 
-    # Use np.select() to choose from the choices based on the conditions
-    metadata["Cluster"] = np.select(conditions, choices, default="Indistinct Cluster")
-
-    cluster_1_index = metadata[metadata["Cluster"] == "Cluster1"].index
-    cluster_2_index = metadata[metadata["Cluster"] == "Cluster2"].index
-    cluster_3_index = metadata[metadata["Cluster"] == "Indistinct Cluster"].index
-    print("cluster 3 index", cluster_3_index)
-
-    fst_for_distinct_clusters = fst_main(
-        genotype_data, [cluster_1_index.values, cluster_2_index.values]
-    )
-    fst_for_all_clusters = fst_main(
-        genotype_data,
-        [cluster_1_index.values, cluster_2_index.values, cluster_3_index.values],
-    )
-
-    logger.info(f"Fst for the two distinct clusters are {fst_for_distinct_clusters}")
-    logger.info(f"Fst for all clusters {fst_for_all_clusters}")
-
-    idx_1 = cluster_1_index.values
-    idx_2 = cluster_2_index.values
-    idx = np.concatenate((np.array(idx_1), np.array(idx_2)))
-    genotype_data = genotype_data.take(idx, axis=1)
-    print("genotype data shape", genotype_data.shape)
-    return genotype_data
+    return cluster_ids
 
 
 def plot_pca(metadata: pd.DataFrame, explained_variance_ratio):
-    import matplotlib.pyplot as plt
-    import numpy as np
+    """
+    Plot PCA results for P. falciparum samples with color coding by year.
 
-    # Let's plot PC1 vs PC2
+    Args:
+        metadata (pd.DataFrame): DataFrame containing PCA coordinates and metadata
+                                Must include columns: 'PC1', 'PC2', 'Year', 'Cluster IDs'
+        explained_variance_ratio (array-like): Array of explained variance ratios
+                                            for each principal component
+    """
+
+    import matplotlib.pyplot as plt
+
     pc1_var = explained_variance_ratio[0] * 100
     pc2_var = explained_variance_ratio[1] * 100
 
@@ -137,18 +113,12 @@ def plot_pca(metadata: pd.DataFrame, explained_variance_ratio):
     scatter = ax.scatter(
         metadata["PC1"],
         metadata["PC2"],
-        # c=metadata["Year", "Sulfadoxine", "Mefloquine", "Artemisinin"],
         c=metadata["Year"],
-        cmap="viridis",  # 'viridis' is a good sequential colormap
+        cmap="viridis",
         alpha=0.8,
         s=70,
     )
 
-    # Add a color bar to show the mapping from color to time
-    cbar = fig.colorbar(scatter, ax=ax, label="Time Point (Year)")
-    cbar.set_ticks(np.unique(metadata["Sulfadoxine"]))
-
-    # Add labels with explained variance
     ax.set_xlabel(f"PC1 ({pc1_var:.2f}% variance explained)")
     ax.set_ylabel(f"PC2 ({pc2_var:.2f}% variance explained)")
     ax.set_title("PCA of P. falciparum Samples, Colored by Time")
@@ -162,6 +132,57 @@ def plot_pca(metadata: pd.DataFrame, explained_variance_ratio):
             metadata.loc[metadata["Year"] == tp, "PC2"],
             label=f"Year {tp}",
         )
-    ax.legend(title="Time Point")
+    ax.legend(title="Year")
 
     plt.show()
+
+
+def main(
+    metadata: pd.DataFrame,
+    genotype_data: GenotypeArray,
+    sample_ids: List[str],
+    n_components=2,
+) -> Dict[int, Tuple[GenotypeArray, pd.DataFrame]]:
+    import numpy as np
+    from sklearn.decomposition import PCA
+    from .fst import main as fst_main
+
+    logger.info("--- Computing PCA ---")
+
+    # NOTE: at this point we have filtered our genotype to limit
+    # it to biallelic variants with statistically significant
+    # alternate alleles
+    gn = genotype_data.to_n_alt()
+    gn_t = gn.T  # samples are now rows and variants are column
+    pca = PCA(n_components=n_components)
+    coords = pca.fit_transform(gn_t)
+    explained_variance_ratio = pca.explained_variance_ratio_
+    logger.info(
+        f"Explained variance ratio of the first {n_components} PCs {explained_variance_ratio}"
+    )
+
+    # Merge PCA coordinates with metadata
+    pc_columns = np.array([f"PC{i+1}" for i in range(n_components)])
+    pca_df = pd.DataFrame(coords, columns=pc_columns)
+    pca_df["Sample"] = sample_ids
+
+    metadata = metadata.merge(pca_df, on="Sample", how="inner")
+    cluster_ids = assign_clusters_by_cutoff(coordinates=coords)
+    metadata["Cluster IDs"] = cluster_ids
+
+    plot_pca(metadata, explained_variance_ratio)
+
+    cluster_details: Dict[int, Tuple[GenotypeArray, pd.DataFrame]] = {}
+    unique_clusters = metadata["Cluster IDs"].unique()
+    for cluster_id in unique_clusters:
+        cluster_mask = metadata["Cluster IDs"] == cluster_id
+        genotype_subset = genotype_data.compress(cluster_mask, axis=1)
+        metadata_subset: pd.DataFrame = metadata.loc[
+            metadata["Cluster IDs"] == cluster_id
+        ].reset_index(drop=True)
+        cluster_details[cluster_id] = (
+            genotype_subset,
+            metadata_subset,
+        )
+
+    return cluster_details
